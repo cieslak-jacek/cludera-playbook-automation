@@ -1,0 +1,43 @@
+# Note for AWS: 'Public DNS' name is too long for ansible_host, use 'Public IP' (https://github.com/ansible/ansible/issues/11536)
+
+[scm_server]
+node1.data.com       license_file=/home/ansible/cloudera-playbook-master/cl.txt
+
+[db_server]
+node1.data.com
+
+[krb5_server]
+node1.data.com        default_realm=CLOUDERA.COM
+
+[utility_servers:children]
+scm_server
+db_server
+krb5_server
+
+[gateway_servers]
+node2.data.com        host_template=HostTemplate-Gateway role_ref_names=HDFS-HTTPFS-1
+node3.data.com
+
+[master_servers]
+node1.data.com        host_template=HostTemplate-Master1
+node2.data.com        host_template=HostTemplate-Master2
+node3.data.com        host_template=HostTemplate-Master3
+
+[worker_servers]
+node2.data.com
+node3.data.com
+
+
+[worker_servers:vars]
+host_template=HostTemplate-Workers
+
+[cdh_servers:children]
+utility_servers
+gateway_servers
+master_servers
+worker_servers
+
+[all:vars]
+ansible_user=ansible
+[all:children]
+utility_servers
